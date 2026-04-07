@@ -1,10 +1,14 @@
 import { neon } from "@neondatabase/serverless";
 
-if (!process.env.DATABASE_URL) {
-    throw new Error("DATABASE_URL environment variable is not set");
+// Only throw if missing in production runtime or development
+// During Next.js build, we just use an empty string to prevent build crashes
+const databaseUrl = process.env.DATABASE_URL || "";
+
+if (!databaseUrl && process.env.NODE_ENV === "development") {
+    console.warn("⚠️ DATABASE_URL is not set. Database features will fail.");
 }
 
-export const sql = neon(process.env.DATABASE_URL);
+export const sql = neon(databaseUrl);
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
