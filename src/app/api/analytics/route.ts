@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getDiseaseAnalytics, getPredictionCount } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 /**
  * GET /api/analytics
  * Returns disease frequency analytics from Neon DB

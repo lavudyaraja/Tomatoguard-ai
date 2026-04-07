@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPredictionHistory, getPredictionCount, deletePrediction } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 /**
  * GET /api/history
  * Returns paginated prediction history from Neon DB
