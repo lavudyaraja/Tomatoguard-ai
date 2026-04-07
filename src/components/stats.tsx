@@ -6,7 +6,7 @@ import { Leaf, ShieldCheck, Database, Zap, Binary, Cpu } from "lucide-react";
 const stats = [
     {
         label: "Training Data",
-        value: "24,009",
+        value: "25,009",
         description: "Augmented dataset",
         icon: Database,
         color: "text-blue-500",

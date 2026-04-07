@@ -61,9 +61,9 @@ function FeatureCard({ icon, title, description, accent, delay = "0ms" }: Featur
 /* ─────────────────────── stat pill ─────────────────────── */
 function StatPill({ value, label, color }: { value: React.ReactNode; label: string; color: string }) {
     return (
-        <div className="flex flex-col items-center gap-1 px-6 py-4 rounded-2xl bg-card/50 border border-border/50">
-            <span className={cn("text-3xl font-extrabold tabular-nums tracking-tight", color)}>{value}</span>
-            <span className="text-xs text-muted-foreground font-medium text-center leading-tight">{label}</span>
+        <div className="flex flex-col items-center gap-1 px-3 sm:px-6 py-3 sm:py-4 rounded-2xl bg-card/50 border border-border/50">
+            <span className={cn("text-2xl sm:text-3xl font-extrabold tabular-nums tracking-tight", color)}>{value}</span>
+            <span className="text-[10px] sm:text-xs text-muted-foreground font-medium text-center leading-tight uppercase tracking-wider">{label}</span>
         </div>
     );
 }
@@ -105,7 +105,7 @@ export function Hero() {
                     </div>
 
                     {/* headline */}
-                    <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.07] animate-slide-up">
+                    <h1 className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.1] sm:leading-[1.07] animate-slide-up">
                         Protect Your Crops
                         <span className="block text-gradient-emerald mt-2">
                             Detect Diseases in Seconds
@@ -121,18 +121,18 @@ export function Hero() {
                     </p>
 
                     {/* CTA buttons */}
-                    <div className="flex flex-wrap items-center justify-center gap-4 pt-2 animate-fade-in delay-300">
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2 animate-fade-in delay-300">
                         <Button
                             size="lg"
                             onClick={() => router.push("/upload")}
-                            className="gradient-emerald h-14 px-10 text-base font-bold hover:shadow-2xl hover:shadow-primary/25 hover:scale-105 transition-all duration-200"
+                            className="gradient-emerald h-14 w-full sm:w-auto px-10 text-base font-bold hover:shadow-2xl hover:shadow-primary/25 hover:scale-105 transition-all duration-200"
                         >
                             <Leaf className="mr-2 h-5 w-5" /> Start Analyzing
                         </Button>
                         <Button
                             size="lg" variant="outline"
                             onClick={() => router.push("/research")}
-                            className="h-14 px-9 text-base font-bold hover:bg-accent/20 border-border/60 hover:border-primary/40 transition-all duration-200 gap-2"
+                            className="h-14 w-full sm:w-auto px-9 text-base font-bold hover:bg-accent/20 border-border/60 hover:border-primary/40 transition-all duration-200 gap-2"
                         >
                             Read Research Paper <ExternalLink className="h-4 w-4" />
                         </Button>

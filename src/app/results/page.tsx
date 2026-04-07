@@ -119,38 +119,38 @@ export default function ResultsPage() {
                                     </p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2 no-print">
+                            <div className="flex flex-wrap items-center gap-2 no-print w-full sm:w-auto">
                                 <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={handleShare}
-                                    className="text-xs h-8 text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
+                                    className="text-[10px] sm:text-xs h-8 flex-1 sm:flex-none text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
                                 >
-                                    <Share2 className="h-3.5 w-3.5 mr-1.5" />
+                                    <Share2 className="h-3 sm:h-3.5 w-3 sm:w-3.5 mr-1 sm:mr-1.5" />
                                     {copied ? "Copied!" : "Share"}
                                 </Button>
                                 <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={handlePrint}
-                                    className="text-xs h-8 text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
+                                    className="hidden sm:flex text-xs h-8 text-muted-foreground hover:text-foreground hover:bg-accent rounded-md transition-colors"
                                 >
                                     <Printer className="h-3.5 w-3.5 mr-1.5" /> Print
                                 </Button>
                                 <Button
                                     size="sm"
                                     onClick={() => router.push("/upload")}
-                                    className="text-xs h-8 bg-primary hover:bg-primary/90 text-primary-foreground rounded-md transition-colors"
+                                    className="text-[10px] sm:text-xs h-8 flex-1 sm:flex-none bg-primary hover:bg-primary/90 text-primary-foreground rounded-md transition-colors"
                                 >
-                                    <Upload className="h-3.5 w-3.5 mr-1.5" /> New Scan
+                                    <Upload className="h-3 sm:h-3.5 w-3 sm:w-3.5 mr-1 sm:mr-1.5" /> New Scan
                                 </Button>
                                 <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => router.push("/history")}
-                                    className="text-xs h-8 border-border rounded-md transition-colors"
+                                    className="text-[10px] sm:text-xs h-8 flex-1 sm:flex-none border-border rounded-md transition-colors"
                                 >
-                                    <History className="h-3.5 w-3.5 mr-1.5" /> History
+                                    <History className="h-3 sm:h-3.5 w-3 sm:w-3.5 mr-1 sm:mr-1.5" /> History
                                 </Button>
                             </div>
                         </div>
@@ -183,10 +183,10 @@ export default function ResultsPage() {
                         </div>
 
                         {/* Info panel */}
-                        <div className="lg:col-span-3 bg-card rounded-xl p-7 flex flex-col justify-between border border-border">
+                        <div className="lg:col-span-3 bg-card rounded-xl p-5 sm:p-7 flex flex-col justify-between border border-border overflow-hidden">
                             <div>
-                                <div className="flex items-center gap-2 mb-5">
-                                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Detected Condition</span>
+                                <div className="flex items-center gap-2 mb-4 sm:mb-5">
+                                    <span className="text-[10px] sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">Detected Condition</span>
                                 </div>
                                 <div className="flex flex-wrap gap-2 mb-3">
                                     <div className="flex items-center gap-1 bg-primary/10 text-primary px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-tight">
@@ -196,13 +196,13 @@ export default function ResultsPage() {
                                         <ShieldCheck className="h-2.5 w-2.5" /> Leaf Match
                                     </div>
                                 </div>
-                                <h2 className="text-3xl font-bold tracking-tight text-foreground display-font leading-tight mb-2">
+                                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground display-font leading-tight mb-2">
                                     {diseaseInfo?.displayName ?? result.prediction.replace(/_/g, " ")}
                                 </h2>
                                 {confidencePct < 40 && (
-                                    <div className="flex items-center gap-2 mb-6 p-2.5 bg-blue-500/5 border border-blue-500/20 rounded-lg text-xs font-medium text-blue-500 dark:text-blue-400">
+                                    <div className="flex items-center gap-2 mb-6 p-2.5 bg-blue-500/5 border border-blue-500/20 rounded-lg text-[11px] sm:text-xs font-medium text-blue-500 dark:text-blue-400">
                                         <Info className="h-3.5 w-3.5 flex-shrink-0" />
-                                        <span>Identification confidence is lower than usual. Ensure the image is a clear, top-down shot of a tomato leaf.</span>
+                                        <span>Confidence is lower than usual. Ensure image is clear.</span>
                                     </div>
                                 )}
                                 {diseaseInfo && (
@@ -213,17 +213,17 @@ export default function ResultsPage() {
                             </div>
 
                             {/* Confidence ring + stats */}
-                            <div className="flex flex-wrap items-center gap-6">
+                            <div className="flex flex-col sm:flex-row items-center gap-6">
                                 <ConfidenceRing value={confidencePct} isHealthy={isHealthy} />
-                                <div className="flex flex-col gap-3">
-                                    <StatPill icon={<Leaf className="h-3.5 w-3.5" />} label="Species" value="Tomato" />
-                                    <StatPill icon={<Info className="h-3.5 w-3.5" />} label="Severity" value={diseaseInfo?.severity ?? "unknown"} capitalize />
+                                <div className="flex flex-col gap-2.5 sm:gap-3 w-full sm:w-auto">
+                                    <StatPill icon={<Leaf className="h-3 sm:h-3.5 w-3 sm:w-3.5" />} label="Species" value="Tomato" />
+                                    <StatPill icon={<Info className="h-3 sm:h-3.5 w-3 sm:w-3.5" />} label="Severity" value={diseaseInfo?.severity ?? "unknown"} capitalize />
                                     <StatPill
-                                        icon={isHealthy ? <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600" /> : <AlertTriangle className="h-3.5 w-3.5 text-amber-600" />}
+                                        icon={isHealthy ? <CheckCircle2 className="h-3 sm:h-3.5 w-3 sm:w-3.5 text-emerald-600" /> : <AlertTriangle className="h-3 sm:h-3.5 w-3 sm:w-3.5 text-amber-600" />}
                                         label="Status"
                                         value={isHealthy ? "No action needed" : "Action required"}
                                     />
-                                    <StatPill icon={<BarChart3 className="h-3.5 w-3.5" />} label="Engine" value="MaxViT Classifier" />
+                                    <StatPill icon={<BarChart3 className="h-3 sm:h-3.5 w-3 sm:w-3.5" />} label="Engine" value="MaxViT Classifier" />
                                 </div>
                             </div>
                         </div>

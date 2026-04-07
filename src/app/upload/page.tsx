@@ -173,12 +173,12 @@ export default function UploadPage() {
         <div className="flex flex-col min-h-screen bg-background relative">
             {/* Global Drag Overlay */}
             {isWindowDragging && (
-                <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background/80 backdrop-blur-md border-4 border-dashed border-primary/40 m-4 rounded-3xl animate-in fade-in zoom-in duration-300">
-                    <div className="bg-primary/10 p-8 rounded-full mb-6 animate-pulse">
-                        <Upload className="h-20 w-20 text-primary" />
+                <div className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background/80 backdrop-blur-md border-4 border-dashed border-primary/40 m-2 sm:m-4 rounded-2xl sm:rounded-3xl animate-in fade-in zoom-in duration-300">
+                    <div className="bg-primary/10 p-6 sm:p-8 rounded-full mb-4 sm:mb-6 animate-pulse">
+                        <Upload className="h-12 w-12 sm:h-20 sm:w-20 text-primary" />
                     </div>
-                    <h2 className="text-4xl font-extrabold tracking-tight mb-2">Drop it here!</h2>
-                    <p className="text-muted-foreground text-lg">Release your leaf image to start the analysis</p>
+                    <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight mb-2">Drop it here!</h2>
+                    <p className="text-muted-foreground text-sm sm:text-lg">Release your leaf image to start the analysis</p>
                 </div>
             )}
             <Navbar />
@@ -257,7 +257,7 @@ export default function UploadPage() {
                                 </div>
                             )}
 
-                            <div className="p-10 sm:p-14 flex flex-col items-center justify-center text-center min-h-[420px]">
+                            <div className="p-6 sm:p-14 flex flex-col items-center justify-center text-center min-h-[360px] sm:min-h-[420px]">
 
                                 {/* ── Idle state ── */}
                                 {!previewUrl && status !== "error" && (
@@ -277,30 +277,30 @@ export default function UploadPage() {
                                             Or use the buttons below.
                                         </p>
 
-                                        <div className="flex flex-wrap gap-3 justify-center">
+                                        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto justify-center">
                                             <input ref={fileInputRef} type="file" className="hidden" accept="image/*"
                                                 onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
                                             <input ref={cameraInputRef} type="file" className="hidden" accept="image/*" capture="environment"
                                                 onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
 
                                             <Button size="lg" onClick={() => fileInputRef.current?.click()}
-                                                className="gradient-emerald h-12 px-8 font-bold hover:scale-105 hover:shadow-xl hover:shadow-primary/20 transition-all">
+                                                className="gradient-emerald h-12 w-full sm:w-auto px-8 font-bold hover:scale-105 hover:shadow-xl hover:shadow-primary/20 transition-all">
                                                 <ImagePlus className="mr-2 h-4.5 w-4.5" /> Browse Files
                                             </Button>
                                             <Button size="lg" variant="outline" onClick={() => cameraInputRef.current?.click()}
-                                                className="h-12 px-7 font-semibold border-border/60 hover:border-primary/50 hover:bg-primary/5 transition-all">
+                                                className="h-12 w-full sm:w-auto px-7 font-semibold border-border/60 hover:border-primary/50 hover:bg-primary/5 transition-all">
                                                 <Camera className="mr-2 h-4.5 w-4.5" /> Use Camera
                                             </Button>
                                         </div>
 
-                                        <div className="flex flex-wrap justify-center gap-5 mt-10 text-xs text-muted-foreground">
+                                        <div className="flex flex-wrap justify-center gap-x-5 gap-y-3 mt-10 text-[10px] sm:text-xs text-muted-foreground font-medium opacity-80 uppercase tracking-wider">
                                             {[
                                                 { icon: ShieldCheck, text: "Privacy-Safe", color: "text-emerald-500" },
                                                 { icon: Zap, text: "< 500ms inference", color: "text-yellow-500" },
                                                 { icon: FileImage, text: "11 disease classes", color: "text-sky-500" },
                                             ].map(({ icon: Icon, text, color }) => (
-                                                <span key={text} className="flex items-center gap-1.5 font-medium">
-                                                    <Icon className={cn("h-3.5 w-3.5", color)} /> {text}
+                                                <span key={text} className="flex items-center gap-1.5">
+                                                    <Icon className={cn("h-3 w-3 sm:h-3.5 sm:w-3.5", color)} /> {text}
                                                 </span>
                                             ))}
                                         </div>

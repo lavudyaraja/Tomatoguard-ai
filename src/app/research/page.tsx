@@ -155,23 +155,24 @@ export default function ResearchPage() {
                                     <BarChart3 className="h-3.5 w-3.5 text-primary" />
                                     <span className="text-xs font-semibold text-primary uppercase tracking-widest">Live Analytics</span>
                                 </div>
-                                <h1 className="text-4xl font-extrabold tracking-tight">Research Dashboard</h1>
-                                <p className="mt-2 text-muted-foreground text-lg">
-                                    Real-time disease detection analytics powered by
-                                    <span className="text-primary font-semibold"> Neon PostgreSQL</span>
+                                <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight shrink-0">Research Dashboard</h1>
+                                <p className="mt-2 text-muted-foreground text-base sm:text-lg">
+                                    Real-time analytics powered by
+                                    <span className="text-primary font-semibold"> Neon</span>
                                 </p>
                                 {lastRefreshed && (
                                     <p className="mt-1 text-xs text-muted-foreground flex items-center gap-1">
                                         <Calendar className="h-3 w-3" />
-                                        Last updated: {format(lastRefreshed, "MMM d, h:mm:ss a")}
+                                        Last updated: {format(lastRefreshed, "h:mm a")}
                                     </p>
                                 )}
                             </div>
-                            <div className="flex items-center gap-3 flex-wrap">
+                            <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto mt-4 sm:mt-0">
                                 <Button
                                     onClick={() => setShowFilters(f => !f)}
                                     variant="outline"
-                                    className="flex items-center gap-2"
+                                    size="sm"
+                                    className="flex-1 sm:flex-none flex items-center gap-2"
                                 >
                                     <Filter className="h-4 w-4" />
                                     Filters
@@ -180,17 +181,19 @@ export default function ResearchPage() {
                                 <Button
                                     onClick={exportCSV}
                                     variant="outline"
+                                    size="sm"
                                     disabled={!data || loading}
-                                    className="flex items-center gap-2"
+                                    className="flex-1 sm:flex-none flex items-center gap-2"
                                 >
                                     <Download className="h-4 w-4" />
-                                    Export CSV
+                                    Export
                                 </Button>
                                 <Button
                                     onClick={fetchAnalytics}
                                     variant="outline"
+                                    size="sm"
                                     disabled={loading}
-                                    className="flex items-center gap-2"
+                                    className="flex-1 sm:flex-none flex items-center gap-2"
                                 >
                                     <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
                                     Refresh

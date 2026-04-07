@@ -190,26 +190,26 @@ export default function HistoryPage() {
                                     <Database className="h-3.5 w-3.5 text-primary" />
                                     <span className="text-xs font-semibold text-primary uppercase tracking-widest">Neon PostgreSQL</span>
                                 </div>
-                                <h1 className="text-4xl font-extrabold tracking-tight">Inference History</h1>
-                                <p className="mt-2 text-muted-foreground text-lg">
+                                <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight shrink-0">Inference History</h1>
+                                <p className="mt-2 text-muted-foreground text-base sm:text-lg">
                                     All past predictions stored in your cloud database
-                                    {data && <span className="text-primary font-semibold"> · {(data?.total ?? 0).toLocaleString()} total scans</span>}
+                                    {data && <span className="hidden sm:inline text-primary font-semibold"> · {(data?.total ?? 0).toLocaleString()} total scans</span>}
                                 </p>
                             </div>
-                            <div className="flex items-center gap-3 flex-wrap">
+                            <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto mt-4 sm:mt-0">
                                 {selectedIds.size > 0 && (
                                     <Button
                                         onClick={handleBulkDelete}
                                         variant="destructive"
                                         disabled={bulkDeleting}
                                         size="sm"
-                                        className="flex items-center gap-2"
+                                        className="flex-1 sm:flex-none flex items-center gap-2"
                                     >
                                         {bulkDeleting
                                             ? <RefreshCw className="h-3 w-3 animate-spin" />
                                             : <Trash2 className="h-3 w-3" />
                                         }
-                                        Delete {selectedIds.size} selected
+                                        Delete {selectedIds.size}
                                     </Button>
                                 )}
                                 <Button
@@ -217,7 +217,7 @@ export default function HistoryPage() {
                                     variant="outline"
                                     disabled={!data || loading}
                                     size="sm"
-                                    className="flex items-center gap-2"
+                                    className="flex-1 sm:flex-none flex items-center gap-2"
                                 >
                                     <Download className="h-4 w-4" /> Export
                                 </Button>
@@ -225,7 +225,8 @@ export default function HistoryPage() {
                                     onClick={() => fetchHistory(page)}
                                     variant="outline"
                                     disabled={loading}
-                                    className="flex items-center gap-2 border-border/60 hover:border-primary/50"
+                                    size="sm"
+                                    className="flex-1 sm:flex-none flex items-center gap-2 border-border/60 hover:border-primary/50"
                                 >
                                     <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
                                     Refresh
