@@ -138,7 +138,7 @@ export default function ProblemPage() {
                                     h1: () => null,
                                     h2: () => null,
                                     p: ({ children }) => (
-                                        <p className="text-[15px] text-[#555546] dark:text-sky-100/90 leading-[1.78] mb-3 font-medium last:mb-0 text-justify">
+                                        <p className="text-[15px] text-[#555546] dark:text-sky-100/90 leading-[1.78] mb-3 font-medium last:mb-0 text-left md:text-justify">
                                             {children}
                                         </p>
                                     ),

@@ -84,7 +84,7 @@ export default function AboutOverviewPage() {
                                     </h2>
                                 ),
                                 p: ({ children }) => (
-                                    <p className="text-[16px] text-[#555546] dark:text-[#A0A898] leading-[1.8] mb-6 last:mb-0 text-justify font-medium">
+                                    <p className="text-[16px] text-[#555546] dark:text-[#A0A898] leading-[1.8] mb-6 last:mb-0 text-left md:text-justify font-medium">
                                         {children}
                                     </p>
                                 ),
