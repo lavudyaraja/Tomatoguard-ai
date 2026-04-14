@@ -79,6 +79,7 @@ export async function POST(req: NextRequest) {
             imageUrl: persistentImageUrl,
             xaiUrl: (data as any).xai_url || data.xaiUrl,
             imageInfo: (data as any).image_info || (data as any).imageInfo,
+            models: (data as any).models || (data as any).res,
         };
 
         // ── Real-time LLM Diagnostic Summary (Groq) ──
@@ -132,11 +133,7 @@ export async function POST(req: NextRequest) {
                                     role: "user",
                                     content: `Analyze a tomato leaf diagnosis. 
                                     Disease: ${finalResult.prediction}
-                                    Confidence: ${finalResult.confidence * 100}%
-                                    Green Coverage: ${finalResult.imageInfo?.green_coverage_pct}%
-                                    Dominant Color: ${finalResult.imageInfo?.dominant_color}
-                                    
-                                    Write a professional, image-specific diagnostic report of exactly 50 words. Focus on biological implications.`
+                                    Write a professional report.`
                                 }
                             ],
                             max_tokens: 150,
