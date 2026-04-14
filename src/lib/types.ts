@@ -6,7 +6,54 @@ export interface PredictionResult {
     confidence: number;
     top5: ClassProbability[];
     imageUrl: string;
+    xaiUrl?: string;
+    annotated_original_url?: string;
+    hotspots?: Hotspot[];
+    imageInfo?: {
+        brightness: number;
+        green_coverage_pct: number;
+        dominant_color: string;
+        quality_warnings: string[];
+        color_description: string;
+        detailed_summary?: string;
+        vitality_score?: string;
+        light_quality?: string;
+        sharpness?: number;
+        saturation?: number;
+        contrast?: number;
+        noise_level?: string | number;
+        width?: number;
+        height?: number;
+    };
+    llmInsight?: {
+        name: string;
+        displayName: string;
+        severity: "low" | "moderate" | "high" | "critical";
+        description: string;
+        symptoms: string[];
+        causes: string[];
+        treatments: string[];
+        prevention: string[];
+    };
     createdAt: string;
+    models?: Record<string, {
+        prediction: string;
+        confidence: number;
+        top5: { label: string; probability: number }[];
+    }>;
+    primary_prediction?: string;
+    primary_confidence?: number;
+    _meta?: Record<string, unknown>;
+}
+
+export interface Hotspot {
+    xPct: number;
+    yPct: number;
+    intensity: number;
+    radius: number;
+    rank: number;
+    label: string;
+    area_pct?: number;
 }
 
 export interface ClassProbability {
@@ -33,9 +80,16 @@ export interface PredictResponse {
     id: string;
     prediction: string;
     confidence: number;
-    top5: ClassProbability[];
+    top5: { label: string; probability: number }[];
     imageUrl: string;
+    xaiUrl?: string;
+    hotspots?: Hotspot[];
     createdAt: string;
+    models?: Record<string, {
+        prediction: string;
+        confidence: number;
+        top5: { label: string; probability: number }[];
+    }>;
 }
 
 export interface HistoryResponse {

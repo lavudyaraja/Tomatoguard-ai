@@ -35,6 +35,10 @@ export interface DbPrediction {
     prediction: string;
     confidence: number;
     image_url: string | null;
+    xai_url: string | null;
+    hotspots: string | null; // JSON string
+    image_info: string | null; // JSON string
+    llm_insight: string | null;
     created_at: string;
 }
 
@@ -53,19 +57,36 @@ export async function insertPrediction(
     id: string,
     prediction: string,
     confidence: number,
-    imageUrl: string | null
+    imageUrl: string | null,
+    llmInsight: any = null,
+    xaiUrl: string | null = null,
+    hotspots: any = null,
+    imageInfo: any = null
 ): Promise<void> {
+    const llmInsightStr = llmInsight ? JSON.stringify(llmInsight) : null;
+    const hotspotsStr = hotspots ? JSON.stringify(hotspots) : null;
+    const imageInfoStr = imageInfo ? JSON.stringify(imageInfo) : null;
+
     await sql`
-    INSERT INTO history (id, prediction, confidence, image_url, created_at)
-    VALUES (${id}, ${prediction}, ${confidence}, ${imageUrl}, now())
+    INSERT INTO history (id, prediction, confidence, image_url, xai_url, hotspots, image_info, llm_insight, created_at)
+    VALUES (${id}, ${prediction}, ${confidence}, ${imageUrl}, ${xaiUrl}, ${hotspotsStr}, ${imageInfoStr}, ${llmInsightStr}, now())
+    ON CONFLICT (id) DO UPDATE SET
+        prediction = EXCLUDED.prediction,
+        confidence = EXCLUDED.confidence,
+        image_url = EXCLUDED.image_url,
+        xai_url = EXCLUDED.xai_url,
+        hotspots = EXCLUDED.hotspots,
+        image_info = EXCLUDED.image_info,
+        llm_insight = EXCLUDED.llm_insight;
   `;
 
     // Upsert analytics counter
+    const severity = llmInsight?.severity || (prediction === "healthy" ? "low" : "moderate");
     await sql`
-    INSERT INTO analytics (disease_name, count, last_detected)
-    VALUES (${prediction}, 1, now())
+    INSERT INTO analytics (disease_name, count, last_detected, severity)
+    VALUES (${prediction}, 1, now(), ${severity})
     ON CONFLICT (disease_name)
-    DO UPDATE SET count = analytics.count + 1, last_detected = now()
+    DO UPDATE SET count = analytics.count + 1, last_detected = now(), severity = ${severity}
   `;
 }
 
@@ -77,7 +98,7 @@ export async function getPredictionHistory(
     offset = 0
 ): Promise<DbPrediction[]> {
     const rows = await sql`
-    SELECT id, prediction, confidence, image_url, created_at
+    SELECT id, prediction, confidence, image_url, xai_url, hotspots, image_info, llm_insight, created_at
     FROM history
     ORDER BY created_at DESC
     LIMIT ${limit} OFFSET ${offset}
@@ -103,6 +124,18 @@ export async function getDiseaseAnalytics(): Promise<DbAnalytic[]> {
     ORDER BY count DESC
   `;
     return rows as DbAnalytic[];
+}
+
+/**
+ * Get a single prediction by ID
+ */
+export async function getPredictionById(id: string): Promise<DbPrediction | null> {
+    const rows = await sql`
+    SELECT id, prediction, confidence, image_url, xai_url, hotspots, image_info, llm_insight, created_at
+    FROM history
+    WHERE id = ${id}
+  `;
+    return rows.length > 0 ? (rows[0] as DbPrediction) : null;
 }
 
 /**

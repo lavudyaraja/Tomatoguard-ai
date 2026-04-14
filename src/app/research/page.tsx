@@ -12,12 +12,13 @@ import {
     Calendar, Filter, ChevronDown, Info,
 } from "lucide-react";
 import { format } from "date-fns";
-import { DISEASE_DATABASE, getSeverityColor } from "@/lib/diseases";
+import { getSeverityColor, cn } from "@/lib/utils";
 
 interface Analytic {
     disease_name: string;
     count: number;
     last_detected: string;
+    severity: "low" | "moderate" | "high" | "critical" | null;
 }
 
 interface AnalyticsData {
@@ -27,6 +28,8 @@ interface AnalyticsData {
 
 type SortOrder = "count_desc" | "count_asc" | "name_asc" | "recent";
 type FilterSeverity = "all" | "critical" | "high" | "moderate" | "none";
+
+const beautifyName = (name: string) => name.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase());
 
 const SEVERITY_ORDER: Record<string, number> = { critical: 0, high: 1, moderate: 2, none: 3 };
 
@@ -66,8 +69,8 @@ export default function ResearchPage() {
         // Severity filter
         if (filterSeverity !== "all") {
             items = items.filter((item) => {
-                const info = DISEASE_DATABASE[item.disease_name];
-                return info?.severity === filterSeverity || (filterSeverity === "none" && item.disease_name === "healthy");
+                const sev = item.severity || (item.disease_name === "healthy" ? "low" : "moderate");
+                return sev === filterSeverity;
             });
         }
 
@@ -89,9 +92,7 @@ export default function ResearchPage() {
         ? Math.round((healthyCount / data.totalPredictions) * 100)
         : null;
     const mostCommon = data?.analytics[0];
-    const mostCommonName = mostCommon
-        ? (DISEASE_DATABASE[mostCommon.disease_name]?.displayName || mostCommon.disease_name).replace(/_/g, " ")
-        : null;
+    const mostCommonName = mostCommon ? beautifyName(mostCommon.disease_name) : null;
 
     // CSV Export
     const exportCSV = () => {
@@ -99,7 +100,7 @@ export default function ResearchPage() {
         const rows = [
             ["Disease", "Count", "Percentage", "Last Detected"],
             ...data.analytics.map(a => [
-                DISEASE_DATABASE[a.disease_name]?.displayName || a.disease_name,
+                beautifyName(a.disease_name),
                 a.count,
                 `${((a.count / data.totalPredictions) * 100).toFixed(1)}%`,
                 format(new Date(a.last_detected), "yyyy-MM-dd HH:mm"),
@@ -134,7 +135,7 @@ export default function ResearchPage() {
                 color: item.disease_name === "healthy" ? "#10b981" : COLORS[(i + 1) % COLORS.length],
                 strokeDash,
                 strokeOffset,
-                label: DISEASE_DATABASE[item.disease_name]?.displayName?.split(" ")[0] || item.disease_name.split("_")[0],
+                label: beautifyName(item.disease_name).split(" ")[0],
                 pct: Math.round(pct * 100),
             };
         });
@@ -327,8 +328,8 @@ export default function ResearchPage() {
                                 ) : processedAnalytics.length > 0 ? (
                                     <div className="space-y-4">
                                         {processedAnalytics.map((item, idx) => {
-                                            const diseaseInfo = DISEASE_DATABASE[item.disease_name];
                                             const isHealthy = item.disease_name === "healthy";
+                                            const severity = item.severity || (isHealthy ? "low" : "moderate");
                                             const widthPct = Math.max(2, (item.count / maxCount) * 100);
                                             const pct = data ? ((item.count / data.totalPredictions) * 100).toFixed(1) : "0";
                                             return (
@@ -343,13 +344,11 @@ export default function ResearchPage() {
                                                                 : <AlertTriangle className="h-4 w-4 text-orange-500" />
                                                             }
                                                             <span className="font-semibold">
-                                                                {diseaseInfo?.displayName || item.disease_name.replace(/_/g, " ")}
+                                                                {beautifyName(item.disease_name)}
                                                             </span>
-                                                            {diseaseInfo && (
-                                                                <Badge className={`text-[10px] px-1.5 py-0 ${getSeverityColor(diseaseInfo.severity)}`}>
-                                                                    {diseaseInfo.severity}
-                                                                </Badge>
-                                                            )}
+                                                            <Badge className={`text-[10px] px-1.5 py-0 ${getSeverityColor(severity)}`}>
+                                                                {severity}
+                                                            </Badge>
                                                         </div>
                                                         <div className="flex items-center gap-2">
                                                             <span className="text-[11px] text-muted-foreground tabular-nums">{pct}%</span>
@@ -446,8 +445,8 @@ export default function ResearchPage() {
                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                                     {(["critical", "high", "moderate", "none"] as const).map((sev) => {
                                         const total = data.analytics.reduce((sum, a) => {
-                                            const info = DISEASE_DATABASE[a.disease_name];
-                                            const match = sev === "none" ? a.disease_name === "healthy" : info?.severity === sev;
+                                            const itemSev = a.severity || (a.disease_name === "healthy" ? "low" : "moderate");
+                                            const match = sev === "none" ? a.disease_name === "healthy" : itemSev === sev;
                                             return match ? sum + a.count : sum;
                                         }, 0);
                                         const pct = data.totalPredictions > 0 ? Math.round((total / data.totalPredictions) * 100) : 0;
