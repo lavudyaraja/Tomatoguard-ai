@@ -157,22 +157,18 @@ export async function POST(req: NextRequest) {
             symptoms: [], causes: [], treatments: [], prevention: []
         };
 
-        // ── SAVE TO DATABASE ──
-        try {
-            await insertPrediction(
-                finalResult.id,
-                finalResult.prediction,
-                finalResult.confidence,
-                finalResult.imageUrl,
-                llmInsight,
-                finalResult.xaiUrl,
-                finalResult.hotspots,
-                finalResult.imageInfo
-            );
-            console.log("✅ Prediction saved to database");
-        } catch (dbErr) {
-            console.error("❌ Failed to save prediction to database:", dbErr);
-        }
+        // ── SAVE TO DATABASE (Resilient Background task) ──
+        // Failures here are logged internally in library as warnings.
+        await insertPrediction(
+            finalResult.id,
+            finalResult.prediction,
+            finalResult.confidence,
+            finalResult.imageUrl,
+            llmInsight,
+            finalResult.xaiUrl,
+            finalResult.hotspots,
+            finalResult.imageInfo
+        );
 
         return NextResponse.json({ ...finalResult, llmInsight });
     } catch (error: unknown) {

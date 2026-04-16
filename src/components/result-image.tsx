@@ -182,8 +182,8 @@ export function ResultImage({
                             />
                             <StatPill
                                 icon={<Target className="h-3.5 w-3.5" />}
-                                label="Model"
-                                value="MaxViT + CoAtNet"
+                                label="Models"
+                                value="CoAtNet + MaxViT + NextViT"
                             />
                         </div>
                     </div>
@@ -382,44 +382,60 @@ export function ResultImage({
             )}
 
             {/* ── Section 4: Model Comparison ───────────────── */}
-            {result.models && Object.keys(result.models).length > 1 && (
+            {result.models && Object.keys(result.models).length >= 1 && (
                 <>
                     <SectionHeader icon={<Cpu className="h-4 w-4" />} label="Model Ensemble" />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                    {/* grid: 1 col on mobile, 2 on md, 3 on lg when all three models are present */}
+                    <div className={cn(
+                        "grid gap-4",
+                        Object.keys(result.models).length >= 3
+                            ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                            : "grid-cols-1 md:grid-cols-2"
+                    )}>
                         {Object.entries(result.models).map(([key, data]) => {
                             const confPct = Math.round(data.confidence * 100);
-                            const isTarget = key === "maxvit";
+                            const isPrimary = key === "coatnet";
+
+                            // Labels / colours per model
+                            const META: Record<string, { name: string; type: string; accent: string }> = {
+                                coatnet: { name: "CoAtNet", type: "Hybrid Attention", accent: "#6366f1" },
+                                maxvit: { name: "MaxViT", type: "Vision Transformer", accent: "#10b981" },
+                                nextvit: { name: "NextViT", type: "Next-Gen Transformer", accent: "#8b5cf6" },
+                            };
+                            const meta = META[key] ?? { name: key.toUpperCase(), type: "Transformer", accent: "#6366f1" };
+
                             return (
                                 <div
                                     key={key}
                                     className={cn(
                                         "rounded-2xl border bg-card p-5 space-y-4 hover:shadow-sm transition-shadow",
-                                        isTarget ? "border-primary/25" : "border-border/50"
+                                        isPrimary ? "border-primary/25" : "border-border/50"
                                     )}
                                 >
                                     {/* Header */}
                                     <div className="flex items-start justify-between gap-3">
                                         <div>
                                             <div className="flex items-center gap-2 mb-1.5">
-                                                <div className={cn(
-                                                    "h-1.5 w-1.5 rounded-full",
-                                                    data.prediction === "healthy" ? "bg-emerald-500" : "bg-primary"
-                                                )} />
+                                                <div
+                                                    className="h-1.5 w-1.5 rounded-full"
+                                                    style={{ background: data.prediction === "healthy" ? "#22c55e" : meta.accent }}
+                                                />
                                                 <span
                                                     className="text-[9px] font-bold uppercase tracking-widest text-muted-foreground"
                                                     style={{ fontFamily: "'Syne', sans-serif" }}
                                                 >
-                                                    {key === "coatnet" ? "Hybrid Attention" : "Vision Transformer"}
+                                                    {meta.type}
                                                 </span>
                                             </div>
                                             <h4
                                                 className="text-base font-bold text-foreground"
                                                 style={{ fontFamily: "'Syne', sans-serif" }}
                                             >
-                                                {key === "coatnet" ? "CoAtNet" : "MaxViT"}
+                                                {meta.name}
                                             </h4>
                                         </div>
-                                        {isTarget && (
+                                        {isPrimary && (
                                             <span className="text-[9px] font-bold text-primary bg-primary/10 border border-primary/20 px-2 py-1 rounded-lg">
                                                 Primary
                                             </span>
@@ -451,7 +467,7 @@ export function ResultImage({
                                         </div>
                                     </div>
 
-                                    {/* Top predictions */}
+                                    {/* Top-3 predictions */}
                                     <div className="space-y-2 pt-1 border-t border-border/40">
                                         <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Top Predictions</p>
                                         {data.top5.slice(0, 3).map((item: any, i: number) => (
@@ -465,8 +481,11 @@ export function ResultImage({
                                                 <div className="flex items-center gap-2 flex-shrink-0 ml-2">
                                                     <div className="h-1 w-16 rounded-full bg-muted overflow-hidden">
                                                         <div
-                                                            className="h-full bg-primary/60 rounded-full"
-                                                            style={{ width: `${Math.round(item.probability * 100)}%` }}
+                                                            className="h-full rounded-full"
+                                                            style={{
+                                                                width: `${Math.round(item.probability * 100)}%`,
+                                                                background: meta.accent + "99"
+                                                            }}
                                                         />
                                                     </div>
                                                     <span className="text-[10px] font-bold text-muted-foreground font-mono w-8 text-right">

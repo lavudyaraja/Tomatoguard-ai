@@ -83,7 +83,7 @@ export default function ResultsPage() {
                                 <div>
                                     <h1 className="text-xl font-semibold text-foreground display-font">Diagnosis Report</h1>
                                     <p className="text-xs text-muted-foreground mt-0.5">
-                                        {result.createdAt ? format(new Date(result.createdAt), "MMMM d, yyyy · h:mm a") : "Just now"} · Dual Model Engine
+                                        {result.createdAt ? format(new Date(result.createdAt), "MMMM d, yyyy · h:mm a") : "Just now"} · Tri-Model Engine
                                     </p>
                                 </div>
                             </div>
@@ -136,7 +136,7 @@ export default function ResultsPage() {
                     </div>
                     <p className="text-[11px] font-black uppercase tracking-[0.3em] text-muted-foreground">TomatoGuard AI Engine v4.2</p>
                     <p className="text-[10px] text-muted-foreground/60 max-w-xs text-center leading-relaxed">
-                        Computer Vision powered by MaxViT and CoAtNet architectures.
+                        Computer Vision powered by MaxViT, CoAtNet and NextViT architectures.
                         Diagnostic Insights enhanced by Llama 3 Pathologist API.
                     </p>
                 </div>

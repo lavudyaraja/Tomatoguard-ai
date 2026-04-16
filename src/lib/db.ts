@@ -1,4 +1,10 @@
-import { neon } from "@neondatabase/serverless";
+import { neon, neonConfig } from "@neondatabase/serverless";
+
+// ── Configure Neon to use WebSocket transport ─────────────────────────────────
+// The default HTTP fetch mode requires api.<region>.neon.tech to be reachable.
+// Setting poolQueryViaFetch=false forces queries through the WebSocket path,
+// which connects directly to the pooler and works on local networks.
+neonConfig.poolQueryViaFetch = false;                       // force WebSocket path
 
 // ── Build-Resilient Database Client ──────────────────────────────────────────
 // We use a Proxy to ensure neon() is only called when a query is actually run.
@@ -17,7 +23,7 @@ export const sql = new Proxy(noop as any, {
         const client = neon(databaseUrl);
         return Reflect.get(client, prop);
     },
-    apply(target, thisArg, argumentsList) {
+    apply(_target, _thisArg, argumentsList) {
         const databaseUrl = process.env.DATABASE_URL;
         if (!databaseUrl) {
             console.warn("⚠️ DATABASE_URL missing. Query skipped.");
@@ -51,7 +57,8 @@ export interface DbAnalytic {
 // ── Queries ──────────────────────────────────────────────────────────────────
 
 /**
- * Insert a new prediction record into the database
+ * Insert a new prediction record into the database.
+ * Failures are logged but never thrown — DB writes should not block the user.
  */
 export async function insertPrediction(
     id: string,
@@ -67,27 +74,36 @@ export async function insertPrediction(
     const hotspotsStr = hotspots ? JSON.stringify(hotspots) : null;
     const imageInfoStr = imageInfo ? JSON.stringify(imageInfo) : null;
 
-    await sql`
-    INSERT INTO history (id, prediction, confidence, image_url, xai_url, hotspots, image_info, llm_insight, created_at)
-    VALUES (${id}, ${prediction}, ${confidence}, ${imageUrl}, ${xaiUrl}, ${hotspotsStr}, ${imageInfoStr}, ${llmInsightStr}, now())
-    ON CONFLICT (id) DO UPDATE SET
-        prediction = EXCLUDED.prediction,
-        confidence = EXCLUDED.confidence,
-        image_url = EXCLUDED.image_url,
-        xai_url = EXCLUDED.xai_url,
-        hotspots = EXCLUDED.hotspots,
-        image_info = EXCLUDED.image_info,
-        llm_insight = EXCLUDED.llm_insight;
-  `;
+    try {
+        await sql`
+        INSERT INTO history (id, prediction, confidence, image_url, xai_url, hotspots, image_info, llm_insight, created_at)
+        VALUES (${id}, ${prediction}, ${confidence}, ${imageUrl}, ${xaiUrl}, ${hotspotsStr}, ${imageInfoStr}, ${llmInsightStr}, now())
+        ON CONFLICT (id) DO UPDATE SET
+            prediction = EXCLUDED.prediction,
+            confidence = EXCLUDED.confidence,
+            image_url  = EXCLUDED.image_url,
+            xai_url    = EXCLUDED.xai_url,
+            hotspots   = EXCLUDED.hotspots,
+            image_info = EXCLUDED.image_info,
+            llm_insight = EXCLUDED.llm_insight;
+      `;
+    } catch (err: unknown) {
+        console.warn("⚠️ insertPrediction — history write skipped:", (err as Error).message ?? err);
+        return; // non-fatal: prediction result is still returned to user
+    }
 
-    // Upsert analytics counter
-    const severity = llmInsight?.severity || (prediction === "healthy" ? "low" : "moderate");
-    await sql`
-    INSERT INTO analytics (disease_name, count, last_detected, severity)
-    VALUES (${prediction}, 1, now(), ${severity})
-    ON CONFLICT (disease_name)
-    DO UPDATE SET count = analytics.count + 1, last_detected = now(), severity = ${severity}
-  `;
+    // Upsert analytics counter (separate try so one failure doesn't block the other)
+    try {
+        const severity = llmInsight?.severity || (prediction === "healthy" ? "low" : "moderate");
+        await sql`
+        INSERT INTO analytics (disease_name, count, last_detected, severity)
+        VALUES (${prediction}, 1, now(), ${severity})
+        ON CONFLICT (disease_name)
+        DO UPDATE SET count = analytics.count + 1, last_detected = now(), severity = ${severity}
+      `;
+    } catch (err: unknown) {
+        console.warn("⚠️ insertPrediction — analytics write skipped:", (err as Error).message ?? err);
+    }
 }
 
 /**
