@@ -204,6 +204,49 @@ export default function UploadPage() {
 
     const abortControllerRef = useRef<AbortController | null>(null);
 
+    /**
+     * Compresses image on client-side before upload to prevent mobile time-outs
+     * and server-side body-size limits.
+     */
+    const compressImage = async (file: File): Promise<Blob> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target?.result as string;
+                img.onload = () => {
+                    const canvas = document.createElement("canvas");
+                    const MAX_WIDTH = 1200;
+                    const MAX_HEIGHT = 1200;
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext("2d");
+                    ctx?.drawImage(img, 0, 0, width, height);
+                    canvas.toBlob((blob) => {
+                        if (blob) resolve(blob);
+                        else reject(new Error("Compression failed"));
+                    }, "image/jpeg", 0.7);
+                };
+            };
+            reader.onerror = (error) => reject(error);
+        });
+    };
+
     /* ── core: run prediction ── */
     const runPrediction = useCallback(async (file: File, localUrl: string) => {
         // Abort any existing request
@@ -231,6 +274,20 @@ export default function UploadPage() {
                 setProgress(45);
             }, 800);
 
+            // Compress image for mobile optimization if it's large
+            let processedFile: Blob | File = file;
+            if (file.size > 1 * 1024 * 1024) { // > 1MB
+                try {
+                    processedFile = await compressImage(file);
+                } catch (e) {
+                    console.warn("Client-side compression failed, sending original", e);
+                }
+            }
+
+            const formData = new FormData();
+            formData.append("image", processedFile, file.name);
+            formData.append("model", model);
+
             const res = await fetch("/api/predict", {
                 method: "POST",
                 body: formData,
@@ -238,7 +295,10 @@ export default function UploadPage() {
             });
             clearTimeout(uploadTimer);
 
-            if (!res.ok) throw new Error(`Server error: ${res.status} ${res.statusText}`);
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.error || `Server error: ${res.status}`);
+            }
 
             const data: PredictionResult = await res.json();
 
@@ -249,10 +309,23 @@ export default function UploadPage() {
 
             setProgress(95);
 
-            sessionStorage.setItem("tg_result", JSON.stringify(data));
-            // Always use the localUrl for the immediate results page to ensure it loads instantly
-            sessionStorage.setItem("tg_image_url", localUrl);
-            sessionStorage.setItem("tg_model", model);
+            // Handle potential SessionStorage QuotaExceededError (common on mobile)
+            try {
+                sessionStorage.setItem("tg_result", JSON.stringify(data));
+                sessionStorage.setItem("tg_image_url", localUrl);
+                sessionStorage.setItem("tg_model", model);
+            } catch (quotaErr) {
+                console.warn("SessionStorage full, clearing and trying again", quotaErr);
+                sessionStorage.clear();
+                try {
+                    sessionStorage.setItem("tg_result", JSON.stringify(data));
+                    sessionStorage.setItem("tg_image_url", localUrl);
+                } catch (finalErr) {
+                    console.error("Critical storage failure", finalErr);
+                    // If even a single result is too big, it might be the base64 XAI images.
+                    // We can still proceed, but the results page might lack some visuals.
+                }
+            }
 
             setStatus("done");
             setProgress(100);

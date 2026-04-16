@@ -5,6 +5,8 @@ import { insertPrediction } from "@/lib/db";
 // This points to your Python FastAPI inference server
 const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8000";
 
+export const maxDuration = 120; // 2 minutes for heavy inference
+
 /**
  * POST /api/predict
  * Forwards image to Python inference engine, stores result in Neon DB
@@ -18,19 +20,38 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "No image file provided" }, { status: 400 });
         }
 
-        // Forward image to Python inference backend
+        console.log(`📦 Received file: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
+
+        // Forward image to Python inference backend with timeout
         const pyFormData = new FormData();
         pyFormData.append("image", file);
 
-        const response = await fetch(`${BACKEND_URL}/predict`, {
-            method: "POST",
-            body: pyFormData,
-        });
+        console.log(`🚀 Forwarding to backend: ${BACKEND_URL}/predict`);
+
+        // Use a 2-minute timeout for inference (Hugging Face can be slow)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 120000);
+
+        let response;
+        try {
+            response = await fetch(`${BACKEND_URL}/predict`, {
+                method: "POST",
+                body: pyFormData,
+                signal: controller.signal,
+            });
+        } catch (fetchErr: any) {
+            if (fetchErr.name === 'AbortError') {
+                throw new Error("Inference timed out. The server is taking too long to respond.");
+            }
+            throw fetchErr;
+        } finally {
+            clearTimeout(timeoutId);
+        }
 
         if (!response.ok) {
-            const errData = await response.json().catch(() => ({}));
-            console.error("Backend Error:", errData);
-            throw new Error(`Inference engine failed: ${response.statusText}`);
+            const errText = await response.text().catch(() => "Unknown error");
+            console.error("Backend Error Response:", errText);
+            throw new Error(`Inference engine failed (${response.status}): ${errText.substring(0, 100)}`);
         }
 
         const data: PredictionResult = await response.json();
