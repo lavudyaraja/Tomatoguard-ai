@@ -46,6 +46,7 @@ export interface DbPrediction {
     image_info: string | null; // JSON string
     llm_insight: string | null;
     created_at: string;
+    models: string | null; // JSON string for multi-model results
 }
 
 export interface DbAnalytic {
@@ -68,16 +69,18 @@ export async function insertPrediction(
     llmInsight: any = null,
     xaiUrl: string | null = null,
     hotspots: any = null,
-    imageInfo: any = null
+    imageInfo: any = null,
+    models: any = null
 ): Promise<void> {
     const llmInsightStr = llmInsight ? JSON.stringify(llmInsight) : null;
     const hotspotsStr = hotspots ? JSON.stringify(hotspots) : null;
     const imageInfoStr = imageInfo ? JSON.stringify(imageInfo) : null;
+    const modelsStr = models ? JSON.stringify(models) : null;
 
     try {
         await sql`
-        INSERT INTO history (id, prediction, confidence, image_url, xai_url, hotspots, image_info, llm_insight, created_at)
-        VALUES (${id}, ${prediction}, ${confidence}, ${imageUrl}, ${xaiUrl}, ${hotspotsStr}, ${imageInfoStr}, ${llmInsightStr}, now())
+        INSERT INTO history (id, prediction, confidence, image_url, xai_url, hotspots, image_info, llm_insight, created_at, models)
+        VALUES (${id}, ${prediction}, ${confidence}, ${imageUrl}, ${xaiUrl}, ${hotspotsStr}, ${imageInfoStr}, ${llmInsightStr}, now(), ${modelsStr})
         ON CONFLICT (id) DO UPDATE SET
             prediction = EXCLUDED.prediction,
             confidence = EXCLUDED.confidence,
@@ -85,7 +88,8 @@ export async function insertPrediction(
             xai_url    = EXCLUDED.xai_url,
             hotspots   = EXCLUDED.hotspots,
             image_info = EXCLUDED.image_info,
-            llm_insight = EXCLUDED.llm_insight;
+            llm_insight = EXCLUDED.llm_insight,
+            models      = EXCLUDED.models;
       `;
     } catch (err: unknown) {
         console.warn("⚠️ insertPrediction — history write skipped:", (err as Error).message ?? err);
@@ -114,7 +118,7 @@ export async function getPredictionHistory(
     offset = 0
 ): Promise<DbPrediction[]> {
     const rows = await sql`
-    SELECT id, prediction, confidence, image_url, xai_url, hotspots, image_info, llm_insight, created_at
+    SELECT id, prediction, confidence, image_url, xai_url, hotspots, image_info, llm_insight, created_at, models
     FROM history
     ORDER BY created_at DESC
     LIMIT ${limit} OFFSET ${offset}
@@ -147,7 +151,7 @@ export async function getDiseaseAnalytics(): Promise<DbAnalytic[]> {
  */
 export async function getPredictionById(id: string): Promise<DbPrediction | null> {
     const rows = await sql`
-    SELECT id, prediction, confidence, image_url, xai_url, hotspots, image_info, llm_insight, created_at
+    SELECT id, prediction, confidence, image_url, xai_url, hotspots, image_info, llm_insight, created_at, models
     FROM history
     WHERE id = ${id}
   `;

@@ -167,7 +167,8 @@ export async function POST(req: NextRequest) {
             llmInsight,
             finalResult.xaiUrl,
             finalResult.hotspots,
-            finalResult.imageInfo
+            finalResult.imageInfo,
+            finalResult.models
         );
 
         return NextResponse.json({ ...finalResult, llmInsight });
