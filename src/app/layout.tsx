@@ -40,7 +40,7 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground pb-20 md:pb-0 md:pl-16">
+      <body className="min-h-full flex flex-col bg-background text-foreground pb-20 md:pb-0 md:pl-16" suppressHydrationWarning>
         <ThemeProvider>
           {children}
         </ThemeProvider>

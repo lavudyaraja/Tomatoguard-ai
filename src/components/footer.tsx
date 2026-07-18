@@ -31,11 +31,14 @@ const DISEASES = [
 ];
 
 const TECH_STACK = [
+    { label: "BiDCNet (Proposed - 99.03%)", color: "bg-amber-500" },
+    { label: "CoAtNet (Hybrid Attention)", color: "bg-indigo-500" },
     { label: "MaxViT (Multi-Axis ViT)", color: "bg-purple-500" },
+    { label: "NextViT (Next-Gen Transformer)", color: "bg-emerald-500" },
     { label: "PyTorch Inference Backend", color: "bg-orange-500" },
     { label: "Next.js 15 · App Router", color: "bg-yellow-500" },
     { label: "Neon Serverless PostgreSQL", color: "bg-blue-500" },
-    { label: "FastAPI · Python 3.11", color: "bg-emerald-500" },
+    { label: "FastAPI · Python 3.11", color: "bg-teal-500" },
     { label: "Tailwind CSS v4", color: "bg-cyan-500" },
     { label: "Vercel + Render Deploy", color: "bg-pink-500" },
 ];
@@ -122,8 +125,8 @@ export function Footer() {
                     </Link>
 
                     <p className="text-sm text-muted-foreground leading-relaxed mb-5">
-                        AI-powered tomato disease detection built on MaxViT — trained on{" "}
-                        <span className="text-foreground font-semibold">24,009 agricultural images</span> across{" "}
+                        AI-powered tomato disease detection built on a <span className="text-foreground font-semibold">quad-model ensemble</span> — trained on{" "}
+                        <span className="text-foreground font-semibold">43,109 agricultural images</span> across{" "}
                         <span className="text-foreground font-semibold">11 disease classes</span>.
                     </p>
 
@@ -238,10 +241,12 @@ export function Footer() {
                             <span className="text-primary font-bold">99.2% validation accuracy</span>{" "}
                             across all 11 classes.
                         </p>
-                        <Link href="/research"
+                        <a href="/kda_report_internship.pdf"
+                            target="_blank"
+                            rel="noopener noreferrer"
                             className="inline-flex items-center gap-1.5 text-[11px] font-bold text-primary hover:underline underline-offset-2">
-                            View full research report <ArrowRight className="h-3 w-3" />
-                        </Link>
+                            View full research report <ExternalLink className="h-3 w-3" />
+                        </a>
                     </div>
                 </div>
             </div>

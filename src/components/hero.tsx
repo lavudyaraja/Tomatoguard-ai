@@ -95,12 +95,12 @@ export function Hero() {
                 <div className="mx-auto max-w-5xl text-center space-y-8">
 
                     {/* version badge */}
-                    <div className="inline-flex items-center gap-2.5 rounded-full border border-emerald-500/25 bg-emerald-500/8 px-4 py-1.5 animate-fade-in">
-                        <Badge variant="outline" className="border-primary/40 text-primary text-[9px] tracking-[0.15em] font-bold uppercase px-2">
-                            v2.0
+                    <div className="inline-flex items-center gap-2.5 rounded-full border border-amber-500/25 bg-amber-500/8 px-4 py-1.5 animate-fade-in">
+                        <Badge variant="outline" className="border-amber-500/40 text-amber-400 text-[9px] tracking-[0.15em] font-bold uppercase px-2">
+                            v3.0
                         </Badge>
-                        <span className="text-xs font-semibold text-emerald-400 tracking-wide">
-                            MaxViT Multi-Axis Vision Transformer
+                        <span className="text-xs font-semibold text-amber-400 tracking-wide">
+                            BiDCNet - Bidirectional Dual Cross-attention Network
                         </span>
                     </div>
 
@@ -115,9 +115,10 @@ export function Hero() {
                     {/* sub */}
                     <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto animate-fade-in delay-200">
                         Advanced real-time tomato disease identification powered by{" "}
-                        <strong className="text-foreground">Multi-Axis Vision Transformer (MaxViT)</strong>.
-                        Trained on over <strong className="text-emerald-400">24,000</strong> augmented
-                        agricultural leaf images across <strong className="text-emerald-400">11 disease classes</strong>.
+                        <strong className="text-foreground">BiDCNet (Proposed)</strong> architecture.
+                        Trained on over <strong className="text-amber-400">43,109</strong> augmented
+                        agricultural leaf images across <strong className="text-amber-400">11 disease classes</strong>.
+                        Achieving <strong className="text-emerald-400">99.03% accuracy</strong> with quad-model ensemble.
                     </p>
 
                     {/* CTA buttons */}
@@ -142,8 +143,8 @@ export function Hero() {
                     <div className="flex flex-wrap items-center justify-center gap-5 text-xs text-muted-foreground animate-fade-in delay-500">
                         {[
                             { icon: ShieldCheck, text: "Privacy-Safe · No data stored", color: "text-emerald-500" },
-                            { icon: Zap, text: "< 500ms inference", color: "text-yellow-500" },
-                            { icon: Microscope, text: "PlantVillage trained", color: "text-sky-500" },
+                            { icon: Zap, text: "99.03% accuracy (BiDCNet)", color: "text-amber-500" },
+                            { icon: Microscope, text: "43,109 images trained", color: "text-sky-500" },
                         ].map(({ icon: Icon, text, color }) => (
                             <span key={text} className="flex items-center gap-1.5 font-medium">
                                 <Icon className={cn("h-3.5 w-3.5", color)} />{text}
@@ -157,13 +158,13 @@ export function Hero() {
             <section className="relative z-10 border-y border-border/40 bg-card/20 py-10 px-4 sm:px-6 lg:px-8">
                 <div className="mx-auto max-w-4xl grid grid-cols-2 sm:grid-cols-4 gap-4">
                     <StatPill
-                        value={<Counter to={99} suffix=".2%" />}
-                        label="Validation Accuracy"
-                        color="text-emerald-400"
+                        value={<Counter to={99} suffix=".03%" />}
+                        label="BiDCNet Accuracy"
+                        color="text-amber-400"
                     />
                     <StatPill
-                        value={<Counter to={24009} />}
-                        label="Training Images"
+                        value={<Counter to={43109} />}
+                        label="Total Dataset"
                         color="text-sky-400"
                     />
                     <StatPill
@@ -172,9 +173,9 @@ export function Hero() {
                         color="text-purple-400"
                     />
                     <StatPill
-                        value={<><Counter to={500} />ms</>}
-                        label="Avg. Inference Time"
-                        color="text-yellow-400"
+                        value={<>4</>}
+                        label="Ensemble Models"
+                        color="text-emerald-400"
                     />
                 </div>
             </section>
@@ -198,7 +199,7 @@ export function Hero() {
                         <FeatureCard
                             icon={<ShieldCheck className="h-5.5 w-5.5 text-emerald-500" />}
                             title="Professional Diagnostics"
-                            description="99.2% identification accuracy across 10 tomato diseases, validated on the PlantVillage benchmark dataset."
+                            description="99.03% identification accuracy with BiDCNet (Proposed), validated on 43,109 tomato leaf images across 11 disease classes."
                             accent="bg-emerald-500/10 border-emerald-500/20"
                             delay="0ms"
                         />
@@ -211,8 +212,8 @@ export function Hero() {
                         />
                         <FeatureCard
                             icon={<Binary className="h-5.5 w-5.5 text-sky-500" />}
-                            title="Hybrid Architecture"
-                            description="MaxViT combines local window and global grid attention for fine-grained leaf texture recognition."
+                            title="Quad-Model Ensemble"
+                            description="BiDCNet, CoAtNet, MaxViT, and NextViT work together with ensemble agreement tracking for robust predictions."
                             accent="bg-sky-500/10 border-sky-500/20"
                             delay="160ms"
                         />

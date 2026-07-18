@@ -46,6 +46,44 @@ Existing AI-based agricultural tools often focus only on classification accuracy
 - Do not offer **actionable recommendations**
 - Lack **real-time performance and scalability**
 - Poor user interface for non-technical users
+- **No uncertainty quantification** - models don't indicate confidence levels
+- **No ensemble agreement** - single model predictions without consensus tracking
+- **Limited explainability** - basic Grad-CAM without attention visualization
+
+---
+
+## Technical Challenges Solved
+
+### 1. **Model Architecture & Integration**
+**Problem**: Integrating a novel BiDCNet architecture with existing ensemble
+- **Solution**: Implemented SCANet-P with exact notebook architecture (ResNet-50 + ViT + Dual-Stage Cross-Attention)
+- **Challenge**: Checkpoint loading with correct parameter naming (head vs classifier)
+- **Resolution**: Aligned model architecture to match training checkpoint exactly
+
+### 2. **Explainable AI (XAI) Implementation**
+**Problem**: Grad-CAM failing with timm backbone structure
+- **Solution**: Corrected target layer from `layer4` to `backbone.layer3[-1]` for features_only=True models
+- **Challenge**: SCANet uses PretrainedCNNEncoder with different structure than standard ResNet
+- **Resolution**: Used last Bottleneck block in layer3 for heatmap generation
+
+### 3. **Multi-Model Ensemble Coordination**
+**Problem**: XAI only worked with CoAtNet/MaxViT, not BiDCNet
+- **Solution**: Updated XAI model selection to prioritize SCANet (BiDCNet)
+- **Implementation**: Priority order: SCANet > CoAtNet > MaxViT > NextViT
+
+### 4. **Dataset & Performance Tracking**
+**Problem**: Inconsistent dataset statistics across UI components
+- **Solution**: Standardized all references to 43,109 total images with 34K/4.4K/4.4K split
+- **Updates**: Homepage stats, footer, hero section, about page, upload page
+
+### 5. **Research-to-Production Pipeline**
+**Problem**: Translating academic research into production-ready features
+- **Solution**: Implemented research-backed enhancements:
+  - Ensemble agreement metrics
+  - Uncertainty quantification (entropy-based)
+  - Confusion warnings for similar classes
+  - Disease severity assessment
+  - Image quality analysis
 
 ---
 

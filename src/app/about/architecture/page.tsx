@@ -1,152 +1,190 @@
 import React from "react";
-import { getMarkdownContent } from "@/lib/markdown";
-import ReactMarkdown from "react-markdown";
-import {
-    Layers,
-    Database,
-    Cpu,
-    Layout,
-    Lightbulb,
-    ChevronRight,
-    Server,
-    Network,
-    Code,
-    Search,
-    Brain
-} from "lucide-react";
+import Image from "next/image";
+import { ChevronRight, Layers, Cpu, Eye, Brain, Database, ArrowDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export const dynamic = "force-static";
 
-const LAYER_ICONS: Record<string, React.ReactNode> = {
-    "Frontend": <Layout size={20} />,
-    "Inference Backend": <Server size={20} />,
-    "Explainer Module": <Search size={20} />,
-    "Insight Layer": <Brain size={20} />,
-    "Persistence Layer": <Database size={20} />,
-};
+const LAYERS = [
+    {
+        num: "01",
+        icon: <Layers size={18} />,
+        title: "Frontend — Next.js Clinical Dashboard",
+        color: { bg: "bg-[#F8F4FF] dark:bg-[#18122A]", border: "border-[#E9D5FF] dark:border-[#3B2565]", iconBg: "bg-[#E9D5FF] dark:bg-[#5B21B6]/40", iconText: "text-[#6D28D9] dark:text-[#C084FC]", dot: "bg-[#8B5CF6]", numText: "text-[#6D28D9] dark:text-[#C084FC]" },
+        desc: "React-based clinical dashboard handling image uploads, report rendering, confidence metrics, severity assessment cards, and scan history visualization.",
+    },
+    {
+        num: "02",
+        icon: <Cpu size={18} />,
+        title: "Inference Backend — FastAPI Quad-Model Engine",
+        color: { bg: "bg-[#F0FFF4] dark:bg-[#0E2018]", border: "border-[#BBF7D0] dark:border-[#1A3828]", iconBg: "bg-[#BBF7D0] dark:bg-[#065F46]/40", iconText: "text-[#065F46] dark:text-[#34D399]", dot: "bg-[#10B981]", numText: "text-[#065F46] dark:text-[#34D399]" },
+        desc: "Python-based inference engine hosting BiDCNet, CoAtNet, MaxViT, and NextViT with ensemble agreement tracking and entropy-based uncertainty quantification.",
+    },
+    {
+        num: "03",
+        icon: <Eye size={18} />,
+        title: "Explainer Module — XAI Engine",
+        color: { bg: "bg-[#EAF6FF] dark:bg-[#0C1A26]", border: "border-[#BFDBFE] dark:border-[#1E3A5F]", iconBg: "bg-[#BFDBFE] dark:bg-[#1D4ED8]/40", iconText: "text-[#1E40AF] dark:text-[#60A5FA]", dot: "bg-[#3B82F6]", numText: "text-[#1E40AF] dark:text-[#60A5FA]" },
+        desc: "Multi-perspective explainability using Grad-CAM++, Attention Rollout, and Combined XAI mode for dual-perspective visualization of model reasoning.",
+    },
+    {
+        num: "04",
+        icon: <Brain size={18} />,
+        title: "Insight Layer — Groq LLM (Llama-4-Scout)",
+        color: { bg: "bg-[#FFF7E8] dark:bg-[#201600]", border: "border-[#FDE68A] dark:border-[#44330A]", iconBg: "bg-[#FDE68A] dark:bg-[#92400E]/40", iconText: "text-[#92400E] dark:text-[#FBBF24]", dot: "bg-[#F59E0B]", numText: "text-[#92400E] dark:text-[#FBBF24]" },
+        desc: "Llama-4-Scout performs multimodal visual analysis on pathological markers, generating automated clinical summaries with tailored biosecurity and treatment protocols.",
+    },
+    {
+        num: "05",
+        icon: <Database size={18} />,
+        title: "Persistence Layer — Neon DB & Cloudinary",
+        color: { bg: "bg-[#EFFFFA] dark:bg-[#0E1E1C]", border: "border-[#99F6E4] dark:border-[#134E4A]", iconBg: "bg-[#99F6E4] dark:bg-[#0F766E]/40", iconText: "text-[#0F766E] dark:text-[#2DD4BF]", dot: "bg-[#14B8A6]", numText: "text-[#0F766E] dark:text-[#2DD4BF]" },
+        desc: "Neon Serverless PostgreSQL stores scan records and patient history. Cloudinary CDN handles image hosting, transformation, and optimized delivery.",
+    },
+];
 
-function parseArchitectureItem(children: React.ReactNode) {
-    const childrenArray = React.Children.toArray(children);
-    let nodes = childrenArray;
-    if (childrenArray.length === 1 && (childrenArray[0] as any)?.type === 'p') {
-        nodes = React.Children.toArray((childrenArray[0] as any).props.children);
-    }
-
-    const firstNode = nodes[0];
-    const hasBoldTitle = firstNode && typeof firstNode === 'object' && (firstNode as any).type === 'strong';
-
-    if (hasBoldTitle) {
-        const titleRaw = (firstNode as any).props.children.toString();
-        const title = titleRaw.split('(')[0].trim();
-        const desc = nodes.slice(1).map((node: any) => {
-            if (typeof node === 'string') return node;
-            return node?.props?.children || "";
-        }).join("").replace(/^[:\s-]+/, "");
-
-        return { title, desc };
-    }
-
-    return { title: "Component", desc: nodes.map((n: any) => typeof n === 'string' ? n : (n?.props?.children || "")).join("") };
-}
+const MODEL_SPECS = [
+    { name: "BiDCNet (Proposed)", acc: "99.03%", params: "21.5M", type: "Primary", details: "ResNet-50 CNN + ViT (384 dim, 4 blocks, 6 heads) + Dual-Stage Bidirectional Cross-Attention",
+      bg: "bg-[#F0FFF4] dark:bg-[#0E2018]", border: "border-[#BBF7D0] dark:border-[#1A3828]", accColor: "text-[#065F46] dark:text-[#34D399]", badge: "bg-[#D1FAE5] dark:bg-[#065F46]/30 border-[#6EE7B7] dark:border-[#065F46] text-[#065F46] dark:text-[#34D399]" },
+    { name: "CoAtNet", acc: "98.9%", params: "Hybrid", type: "Supporting", details: "Hybrid CNN-Transformer with convolutional attention mechanism",
+      bg: "bg-[#F5F7FA] dark:bg-[#141618]", border: "border-[#E4E7EB] dark:border-[#252A30]", accColor: "text-[#555546] dark:text-[#A0A898]", badge: "bg-[#F5F7FA] dark:bg-[#1F2428] border-[#E4E7EB] dark:border-[#2D3139] text-[#9E9E8A] dark:text-[#606860]" },
+    { name: "MaxViT", acc: "98.8%", params: "Multi-Axis ViT", type: "Supporting", details: "Multi-Axis Vision Transformer with block/grid attention patterns",
+      bg: "bg-[#F5F7FA] dark:bg-[#141618]", border: "border-[#E4E7EB] dark:border-[#252A30]", accColor: "text-[#555546] dark:text-[#A0A898]", badge: "bg-[#F5F7FA] dark:bg-[#1F2428] border-[#E4E7EB] dark:border-[#2D3139] text-[#9E9E8A] dark:text-[#606860]" },
+    { name: "NextViT", acc: "98.7%", params: "Next-Gen", type: "Supporting", details: "Next-generation efficient Vision Transformer architecture",
+      bg: "bg-[#F5F7FA] dark:bg-[#141618]", border: "border-[#E4E7EB] dark:border-[#252A30]", accColor: "text-[#555546] dark:text-[#A0A898]", badge: "bg-[#F5F7FA] dark:bg-[#1F2428] border-[#E4E7EB] dark:border-[#2D3139] text-[#9E9E8A] dark:text-[#606860]" },
+];
 
 export default function ArchitecturePage() {
-    const rawContent = getMarkdownContent("architecture.md");
-    const sections = rawContent.split("### Layer Breakdown:").map(s => s.trim());
-    const intro = sections[0] || "";
-    const layers = sections[1] || "";
-
     return (
-        <div className="min-h-screen text-[#1A1A14] dark:text-[white] transition-colors duration-500 selection:bg-emerald-100 dark:selection:bg-emerald-900/40 pb-24">
-            <div className="max-w-4xl mx-auto px-6 py-12">
+        <div className="min-h-screen pb-32 text-[#1A1A14] dark:text-[#E8E6DF]">
+            <div className="max-w-4xl mx-auto px-6 py-12 space-y-20">
 
                 {/* Breadcrumb */}
-                <div className="flex items-center gap-2 mb-10 animate-fade-in opacity-80">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#9E9E8A] dark:text-[#606860]">
-                        Technical
-                    </span>
+                {/* <div className="flex items-center gap-2 opacity-70">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9E9E8A] dark:text-[#606860]">Research</span>
                     <ChevronRight className="w-3 h-3 text-[#9E9E8A]/50" />
-                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#3B6D11] dark:text-[#97C459]">
-                        System Architecture
-                    </span>
-                </div>
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#6D28D9] dark:text-[#C084FC]">System Architecture</span>
+                </div> */}
 
-                {/* ── Hero ─────────────────────────────────────────────── */}
-                <div className="mb-14 animate-slide-up">
-                    <div className="inline-flex items-center gap-2 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 text-[11px] font-bold uppercase tracking-widest px-4 py-1.5 rounded-full border border-emerald-100/50 dark:border-emerald-900/20 mb-6 shadow-sm">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        Infrastructure
+                {/* Hero */}
+                {/* <section>
+                    <div className="inline-flex items-center gap-2 bg-[#F8F4FF] dark:bg-[#18122A] text-[#6D28D9] dark:text-[#C084FC] text-[10px] font-semibold uppercase tracking-widest px-4 py-1.5 rounded-full border border-[#E9D5FF] dark:border-[#3B2565] mb-8">
+                        <Layers size={11} />
+                        Technical Architecture · 5-Layer System
                     </div>
+                    <h1 className="font-serif text-4xl md:text-5xl lg:text-6xl font-semibold leading-[1.1] tracking-tight mb-6">
+                        System<br />
+                        <span className="text-[#6D28D9] dark:text-[#C084FC]">Architecture</span>
+                    </h1>
+                    <p className="text-lg text-[#555546] dark:text-[#A0A898] leading-relaxed max-w-2xl font-medium">
+                        TomatoGuard AI uses a decoupled 5-layer architecture — from a Next.js clinical frontend to a FastAPI quad-model engine — designed for high-performance inference, rich explainability, and enterprise-grade data persistence.
+                    </p>
+                </section> */}
 
-                    <ReactMarkdown
-                        components={{
-                            h1: ({ children }) => (
-                                <h1 className="font-serif text-3xl md:text-5xl lg:text-6xl font-semibold leading-[1.1] tracking-tight mb-8">
-                                    {children}
-                                </h1>
-                            ),
-                            p: ({ children }) => (
-                                <p className="text-xl text-[#555546] dark:text-[#A0A898] leading-relaxed max-w-2xl font-medium">
-                                    {children}
-                                </p>
-                            )
-                        }}
-                    >
-                        {intro}
-                    </ReactMarkdown>
-                </div>
+                {/* ── BiDCNet Architecture Diagram ──────────────────── */}
+                <section>
+                    <div className="mb-6">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9E9E8A] dark:text-[#606860] mb-2">Model Design</p>
+                        <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight">BiDCNet Architecture</h2>
+                        <p className="mt-3 text-[14px] text-[#555546] dark:text-[#A0A898] leading-relaxed max-w-2xl">
+                            BiDCNet uses a pretrained <strong className="text-[#1A1A14] dark:text-[#E8E6DF] font-semibold">ResNet-50 CNN</strong> for local spatial feature extraction and a scratch-trained <strong className="text-[#1A1A14] dark:text-[#E8E6DF] font-semibold">Vision Transformer</strong> for global context. These two streams fuse through a dual-stage bidirectional cross-attention mechanism — first dense, then sparse top-K routing — before a 768-D concatenated head classifies 11 disease classes.
+                        </p>
+                    </div>
+                    <div className="rounded-3xl border border-[#E9D5FF] dark:border-[#2E1F5E] bg-[#FEFCFF] dark:bg-[#100D1A] overflow-hidden p-4">
+                        <Image
+                            src="/arch-bidcnet.png"
+                            alt="BiDCNet Bidirectional Dual Cross-attention Network architecture diagram"
+                            width={1200}
+                            height={700}
+                            className="w-full h-auto rounded-2xl"
+                            priority
+                        />
+                    </div>
+                    <p className="mt-3 text-[12px] text-[#9E9E8A] dark:text-[#606860] text-center">
+                        Figure 1 — BiDCNet (Proposed): ResNet-50 CNN encoder + ViT branch → Dual-Stage Cross-Attention → Fusion & Classification Head
+                    </p>
+                </section>
 
-                {/* ── Layer Path ───────────────────────────────────────── */}
-                <div className="relative space-y-6">
-                    <div className="absolute left-[31px] top-10 bottom-10 w-[2px] bg-gradient-to-b from-emerald-500/50 via-emerald-500/20 to-transparent hidden md:block" />
+                {/* ── System Flow Diagram ───────────────────────────── */}
+                <section>
+                    <div className="mb-6">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9E9E8A] dark:text-[#606860] mb-2">End-to-End Flow</p>
+                        <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight">System Data Flow</h2>
+                        <p className="mt-3 text-[14px] text-[#555546] dark:text-[#A0A898] leading-relaxed max-w-2xl">
+                            The client UI uploads a leaf image to the <strong className="text-[#1A1A14] dark:text-[#E8E6DF] font-semibold">FastAPI server</strong>, which forwards it to the <strong className="text-[#1A1A14] dark:text-[#E8E6DF] font-semibold">BiDCNet Engine</strong> for multi-model inference. The XAI Processor generates Grad-CAM++ heatmaps from extracted features, while assets are stored in Cloudinary and transaction logs saved to Neon PostgreSQL.
+                        </p>
+                    </div>
+                    <div className="rounded-3xl border border-[#BBF7D0] dark:border-[#1A3828] bg-[#FCFFFD] dark:bg-[#0C110D] overflow-hidden p-4">
+                        <Image
+                            src="/arch-system-flow.png"
+                            alt="TomatoGuard AI system data flow diagram showing Client UI, FastAPI Server, BiDCNet Engine, XAI Processor, Cloudinary and Neon Database connections"
+                            width={1200}
+                            height={700}
+                            className="w-full h-auto rounded-2xl"
+                        />
+                    </div>
+                    <p className="mt-3 text-[12px] text-[#9E9E8A] dark:text-[#606860] text-center">
+                        Figure 2 — System Flow: Next.js Client UI → FastAPI API Layer → BiDCNet Engine → XAI Processor → Neon DB & Cloudinary
+                    </p>
+                </section>
 
-                    <ReactMarkdown
-                        components={{
-                            ol: ({ children }) => <>{children}</>,
-                            li: ({ children, index }: { children?: React.ReactNode, index?: number }) => {
-                                const { title, desc } = parseArchitectureItem(children);
-                                const icon = LAYER_ICONS[title] || <Code size={20} />;
-
-                                return (
-                                    <div className="relative pl-0 md:pl-20 group">
-                                        <div className="absolute left-[18px] top-6 w-7 h-7 bg-emerald-600 dark:bg-emerald-500 rounded-full border-4 border-white dark:border-[#111510] z-10 hidden md:flex items-center justify-center text-white text-[10px] font-bold">
-                                            {(index || 0) + 1}
-                                        </div>
-
-                                        <div className="bg-white dark:bg-[#161A15] border border-black/5 dark:border-white/5 rounded-3xl p-8 hover:shadow-xl transition-all duration-500 group-hover:border-emerald-500/30">
-                                            <div className="flex items-center gap-4 mb-4">
-                                                <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-900/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
-                                                    {icon}
-                                                </div>
-                                                <h3 className="text-lg font-bold tracking-tight">{title}</h3>
-                                            </div>
-                                            <p className="text-[15px] text-[#6B6B5A] dark:text-[#9EA899] leading-[1.6] font-medium">
-                                                {desc}
-                                            </p>
-                                        </div>
+                {/* ── Layer Breakdown ───────────────────────────────── */}
+                <section>
+                    <div className="mb-8">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9E9E8A] dark:text-[#606860] mb-2">Layer Breakdown</p>
+                        <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight">System Layers</h2>
+                    </div>
+                    <div className="space-y-3">
+                        {LAYERS.map((layer, i) => (
+                            <React.Fragment key={layer.num}>
+                                <div className={cn("rounded-2xl border px-6 py-5 flex items-center gap-5", layer.color.bg, layer.color.border)}>
+                                    <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center shrink-0", layer.color.iconBg, layer.color.iconText)}>
+                                        {layer.icon}
                                     </div>
-                                );
-                            }
-                        }}
-                    >
-                        {layers}
-                    </ReactMarkdown>
-                </div>
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <span className={cn("text-[10px] font-bold uppercase tracking-widest", layer.color.numText)}>Layer {layer.num}</span>
+                                        </div>
+                                        <h3 className="font-semibold text-[14px] text-[#1A1A14] dark:text-[#E8E6DF] leading-tight mb-1">{layer.title}</h3>
+                                        <p className="text-[13px] text-[#555546] dark:text-[#A0A898] leading-relaxed">{layer.desc}</p>
+                                    </div>
+                                </div>
+                                {i < LAYERS.length - 1 && (
+                                    <div className="flex justify-center py-0.5">
+                                        <ArrowDown size={14} className="text-[#9E9E8A]/40 dark:text-[#606860]/40" />
+                                    </div>
+                                )}
+                            </React.Fragment>
+                        ))}
+                    </div>
+                </section>
 
-                {/* ── Tech Stack Banner ────────────────────────────────── */}
-                <div className="mt-20 p-8 rounded-[2.5rem] bg-gradient-to-br from-[#FAFAFA] to-[#F1F3EE] dark:from-[#1A1E18] dark:to-[#111510] border border-black/5 dark:border-white/5 flex flex-wrap items-center justify-center gap-8 md:gap-16 grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-700">
-                    <div className="flex items-center gap-2 font-black tracking-tighter text-xl">
-                        <span className="text-emerald-600">NEXT</span>JS
+                {/* ── Model Specs Table ─────────────────────────────── */}
+                <section>
+                    <div className="mb-8">
+                        <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#9E9E8A] dark:text-[#606860] mb-2">Ensemble Models</p>
+                        <h2 className="font-serif text-2xl md:text-3xl font-semibold tracking-tight">Model Specifications</h2>
                     </div>
-                    <div className="flex items-center gap-2 font-black tracking-tighter text-xl">
-                        FAST<span className="text-emerald-600">API</span>
+                    <div className="space-y-3">
+                        {MODEL_SPECS.map((m) => (
+                            <div key={m.name} className={cn("rounded-2xl border p-5", m.bg, m.border)}>
+                                <div className="flex items-start justify-between gap-4 flex-wrap">
+                                    <div className="flex-1">
+                                        <div className="flex items-center gap-3 mb-1.5 flex-wrap">
+                                            <span className="font-semibold text-[14px] text-[#1A1A14] dark:text-[#E8E6DF]">{m.name}</span>
+                                            <span className={cn("text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full border", m.badge)}>{m.type}</span>
+                                        </div>
+                                        <p className="text-[13px] text-[#555546] dark:text-[#A0A898]">{m.details}</p>
+                                    </div>
+                                    <div className="text-right shrink-0">
+                                        <div className={cn("text-xl font-bold tabular-nums", m.accColor)}>{m.acc}</div>
+                                        <div className="text-[11px] text-[#9E9E8A] dark:text-[#606860]">{m.params}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                    <div className="flex items-center gap-2 font-black tracking-tighter text-xl uppercase">
-                        PyTorch
-                    </div>
-                    <div className="flex items-center gap-2 font-black tracking-tighter text-xl">
-                        NEON<span className="text-emerald-600">DB</span>
-                    </div>
-                </div>
+                </section>
 
             </div>
         </div>

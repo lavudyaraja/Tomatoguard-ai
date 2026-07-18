@@ -28,12 +28,22 @@ const TIPS = [
 
 const MODELS = [
     {
+        value: "quad-model",
+        label: "Quad-Model",
+        fullName: "Ensemble (BiDCNet + CoAtNet + MaxViT + NextViT)",
+        badge: "Best Accuracy (99.03%)",
+        badgeColor: "bg-amber-500/15 text-amber-400 border-amber-500/25",
+        accuracy: "99.03%",
+        speed: "< 1200ms",
+        icon: "🏆",
+    },
+    {
         value: "dual-model",
         label: "Dual-Model",
         fullName: "Ensemble (CoAtNet + MaxViT)",
-        badge: "Best Diagnostic",
+        badge: "Fast & Accurate",
         badgeColor: "bg-primary/15 text-primary border-primary/25",
-        accuracy: "99.8%",
+        accuracy: "98.9%",
         speed: "< 850ms",
         icon: "🛡️",
     },
@@ -43,7 +53,7 @@ const MODELS = [
         fullName: "Multi-Axis Vision Transformer",
         badge: "Recommended",
         badgeColor: "bg-emerald-500/15 text-emerald-400 border-emerald-500/25",
-        accuracy: "99.2%",
+        accuracy: "98.8%",
         speed: "< 500ms",
         icon: "🧠",
     },
@@ -711,7 +721,7 @@ export default function UploadPage() {
                                                 { icon: ShieldCheck, text: "Privacy-Safe", color: "text-emerald-500" },
                                                 { icon: Zap, text: "< 500ms", color: "text-yellow-500" },
                                                 { icon: FileImage, text: "11 Classes", color: "text-sky-500" },
-                                                { icon: Sparkles, text: "99.2% Accuracy", color: "text-violet-400" },
+                                                { icon: Sparkles, text: "99.03% Accuracy", color: "text-violet-400" },
                                             ].map(({ icon: Icon, text, color }) => (
                                                 <span key={text} className="flex items-center gap-1.5">
                                                     <Icon className={cn("h-3.5 w-3.5", color)} />
@@ -903,7 +913,7 @@ export default function UploadPage() {
                                     { label: "Accuracy", value: activeModel.accuracy, color: "text-emerald-400" },
                                     { label: "Inference", value: activeModel.speed, color: "text-yellow-400" },
                                     { label: "Classes", value: "11", color: "text-sky-400" },
-                                    { label: "Training imgs", value: "24 K+", color: "text-purple-400" },
+                                    { label: "Training imgs", value: "43 K+", color: "text-purple-400" },
                                 ].map(s => (
                                     <div key={s.label}
                                         className="rounded-xl bg-background/60 border border-border/40 p-3">

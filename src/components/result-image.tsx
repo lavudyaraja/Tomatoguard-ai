@@ -183,7 +183,7 @@ export function ResultImage({
                             <StatPill
                                 icon={<Target className="h-3.5 w-3.5" />}
                                 label="Models"
-                                value="CoAtNet + MaxViT + NextViT"
+                                value="BiDCNet + CoAtNet + MaxViT + NextViT"
                             />
                         </div>
                     </div>
@@ -386,21 +386,25 @@ export function ResultImage({
                 <>
                     <SectionHeader icon={<Cpu className="h-4 w-4" />} label="Model Ensemble" />
 
-                    {/* grid: 1 col on mobile, 2 on md, 3 on lg when all three models are present */}
+                    {/* grid: 1 col on mobile, 2 on md, 3-4 on lg when all four models are present */}
                     <div className={cn(
                         "grid gap-4",
-                        Object.keys(result.models).length >= 3
+                        Object.keys(result.models).length >= 4
+                            ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+                            : Object.keys(result.models).length >= 3
                             ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
                             : "grid-cols-1 md:grid-cols-2"
                     )}>
                         {Object.entries(result.models).map(([key, data]) => {
                             const confPct = Math.round(data.confidence * 100);
-                            const isPrimary = key === "coatnet";
+                            // BiDCNet (scanet) is the primary proposed model
+                            const isPrimary = key === "scanet";
 
                             // Labels / colours per model
                             const META: Record<string, { name: string; type: string; accent: string }> = {
+                                scanet: { name: "BiDCNet (Proposed)", type: "Bidirectional Dual Cross-attention", accent: "#f59e0b" },
                                 coatnet: { name: "CoAtNet", type: "Hybrid Attention", accent: "#6366f1" },
-                                maxvit: { name: "MaxViT", type: "Vision Transformer", accent: "#10b981" },
+                                maxvit: { name: "MaxViT", type: "Multi-Axis Vision Transformer", accent: "#10b981" },
                                 nextvit: { name: "NextViT", type: "Next-Gen Transformer", accent: "#8b5cf6" },
                             };
                             const meta = META[key] ?? { name: key.toUpperCase(), type: "Transformer", accent: "#6366f1" };

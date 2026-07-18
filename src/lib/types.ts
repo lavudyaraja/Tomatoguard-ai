@@ -4,11 +4,31 @@ export interface PredictionResult {
     id: string;
     prediction: string;
     confidence: number;
+    confidence_pct?: number;
     top5: ClassProbability[];
     imageUrl: string;
     xaiUrl?: string;
     annotated_original_url?: string;
     hotspots?: Hotspot[];
+    // ── NEW: Research-backed enhancements (PDF Report recommendations) ──
+    ensemble_agreement?: number | null;
+    prediction_entropy?: number | null;
+    uncertainty_level?: "very_low" | "low" | "moderate" | "high";
+    confusion_warning?: {
+        message: string;
+        recommendation: string;
+        research_note: string;
+    } | null;
+    num_models_used?: number;
+    model_consensus?: string;
+    severity_assessment?: {
+        severity_score: number;
+        severity_level: "none" | "very_low" | "low" | "moderate" | "high" | "critical";
+        affected_area_pct: number;
+        num_lesions: number;
+        avg_intensity: number;
+        recommendation: string;
+    } | null;
     imageInfo?: {
         brightness: number;
         green_coverage_pct: number;
@@ -80,11 +100,31 @@ export interface PredictResponse {
     id: string;
     prediction: string;
     confidence: number;
+    confidence_pct?: number;
     top5: { label: string; probability: number }[];
     imageUrl: string;
     xaiUrl?: string;
     hotspots?: Hotspot[];
     createdAt: string;
+    // ── NEW: Research-backed enhancements ──
+    ensemble_agreement?: number | null;
+    prediction_entropy?: number | null;
+    uncertainty_level?: string;
+    confusion_warning?: {
+        message: string;
+        recommendation: string;
+        research_note: string;
+    } | null;
+    num_models_used?: number;
+    model_consensus?: string;
+    severity_assessment?: {
+        severity_score: number;
+        severity_level: string;
+        affected_area_pct: number;
+        num_lesions: number;
+        avg_intensity: number;
+        recommendation: string;
+    } | null;
     models?: Record<string, {
         prediction: string;
         confidence: number;

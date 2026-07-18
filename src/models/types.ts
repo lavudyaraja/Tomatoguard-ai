@@ -3,4 +3,7 @@ export interface ModelInfo {
     name: string;
     type: string;
     description: string;
+    accuracy?: string;
+    parameters?: string;
+    research?: string;
 }
